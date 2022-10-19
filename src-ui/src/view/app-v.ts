@@ -15,7 +15,7 @@ import { router } from '../router';
 const HTML = html`
 	<header>
 	<d-ico class="menu action" name="ico-menu"></d-ico>
-	<h1>awesome-tauri</h1>
+	<h1>Life-OS</h1>
 	</header>
 	<nav-v></nav-v>
 	<main></main>

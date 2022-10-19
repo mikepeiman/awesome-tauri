@@ -47,5 +47,9 @@ active = false
 
 [[tauri.windows]]
 title = "awesome-tauri"
-fullscreen = false
 resizable = true
+center = true
+height = 400
+width = 800
+alwaysOnTop = true
+focus = true

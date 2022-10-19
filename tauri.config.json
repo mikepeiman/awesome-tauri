@@ -1,0 +1,8 @@
+{
+    "windows": [
+        {
+            "fullscreen": true,
+            "focus": true
+        }
+    ]
+}
