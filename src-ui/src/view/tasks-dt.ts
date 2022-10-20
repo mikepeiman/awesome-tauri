@@ -63,136 +63,169 @@ export class TasksDataTable extends BaseHTMLElement { // extends HTMLElement
 		const newTask = await taskFmc.get(data.id);
 		all(this, `task-row.${classable(data.id)}`).forEach((taskEl) => (<TaskRow>taskEl).task = newTask);
 	}
-	// #endregion --- App Event
+			// #endregion --- App Event
 
-	// #region    --- UI Events
-	@onEvent("pointerup", "task-row .show-more")
-	onTaskShowMore(evt: OnEvent) {
+			// #region    --- UI Events
+			@onEvent("pointerup", "task-row .show-more")
+			onTaskShowMore(evt: OnEvent) {
 		const MENU_CLASS = 'task-row-more-menu';
 
 		// if already showing (will auto remove, but we do not want to popup it again)
 		if (first(`body > menu-c.${MENU_CLASS}`)) return;
 
-		const showMoreEl = evt.selectTarget;
-		const task = showMoreEl.closest('task-row')!.task;
+			const showMoreEl = evt.selectTarget;
+			const task = showMoreEl.closest('task-row')!.task;
 
-		const options = {
-			'toggle': (task.done) ? "Mark Undone" : "Mark Done",
-			'delete': elem("label", { class: "delete", $: { textContent: "Delete" } }),
+			const options = {
+				'toggle': (task.done) ? "Mark Undone" : "Mark Done",
+			'delete': elem("label", {class: "delete", $: {textContent: "Delete" } }),
 		};
 
-		// Show the meunu
-		const menuEl = elem("menu-c", { "class": MENU_CLASS, $: { options } });
-		document.body.appendChild(menuEl);
-		on(menuEl, "SELECT", (evt: OnEvent<keyof typeof options>) => {
+			// Show the meunu
+			const menuEl = elem("menu-c", {"class": MENU_CLASS, $: {options} });
+			document.body.appendChild(menuEl);
+			on(menuEl, "SELECT", (evt: OnEvent<keyof typeof options>) => {
 			if (evt.detail == 'delete') {
-				taskFmc.delete(task.id);
+					taskFmc.delete(task.id);
 			} else if (evt.detail == 'toggle') {
-				taskFmc.update(task.id, { done: !task.done });
+					taskFmc.update(task.id, { done: !task.done });
 			}
 
 		});
-		position(menuEl, showMoreEl, { refPos: "BR", pos: "BL", gap: 4 });
+				position(menuEl, showMoreEl, {refPos: "BR", pos: "BL", gap: 4 });
 	}
 
-	@onEvent("CHANGE", "task-row d-check")
-	onTaskCheckClick(evt: OnEvent<{ value: boolean }>) {
-		let taskEl = evt.selectTarget.closest("task-row")!;
-		let task_id = taskEl.task.id;
-		let newDone = evt.detail.value;
+				@onEvent("CHANGE", "task-row d-check")
+				onTaskCheckClick(evt: OnEvent<{ value: boolean }>) {
+					let taskEl = evt.selectTarget.closest("task-row")!;
+				let task_id = taskEl.task.id;
+				let newDone = evt.detail.value;
 
-		// Make sure to avoid infine loop 
-		// (will get this event when changed by other mean as well)
-		if (newDone !== taskEl.task.done) {
-			taskFmc.update(task_id, { done: evt.detail.value });
+				// Make sure to avoid infine loop 
+				// (will get this event when changed by other mean as well)
+				if (newDone !== taskEl.task.done) {
+					taskFmc.update(task_id, { done: evt.detail.value });
 		}
 	}
-	// #endregion --- UI Events
+				// #endregion --- UI Events
 
-	postDisplay() {
-		this.update();
+				postDisplay() {
+					this.update();
 	}
 
-	async update() {
+				async update() {
 		if (this.initialized) {
 			const tasks = await taskFmc.list(this.#project_id);
 
-			const content = frag(tasks, task => elem('task-row', { $: { task } }));
+			const content = frag(tasks, task => elem('task-row', {$: {task} }));
 
-			content.prepend(document.importNode(TASK_HEADER, true));
+				content.prepend(document.importNode(TASK_HEADER, true));
 
-			this.replaceChildren(content);
+				this.replaceChildren(content);
 
-			if (tasks.length == 0) {
-				trigger(this, "EMPTY");
+				if (tasks.length == 0) {
+					trigger(this, "EMPTY");
 			}
 		}
 
 	}
 }
-declare global {
-	interface HTMLElementTagNameMap {
-		'tasks-dt': TasksDataTable;
+				declare global {
+					interface HTMLElementTagNameMap {
+					'tasks-dt': TasksDataTable;
 	}
 }
 
-// #region    --- task-row
-@customElement('task-row')
-export class TaskRow extends BaseHTMLElement { // extends HTMLElement
-	// #region    --- Data
-	#task!: Task;
-	set task(newTask: Task) {
+				// #region    --- task-row
+				@customElement('task-row')
+				export class TaskRow extends BaseHTMLElement { // extends HTMLElement
+					// #region    --- Data
+					#task!: Task;
+				set task(newTask: Task) {
 		const oldTask = this.#task as Task | undefined;
-		if (oldTask !== newTask) {
-			this.#task = newTask;
-			this.update(newTask, oldTask);
+				if (oldTask !== newTask) {
+					this.#task = newTask;
+				this.update(newTask, oldTask);
 		}
 	}
-	get task() { return this.#task }
-	// #endregion --- Data
+				get task() { return this.#task }
+				// #endregion --- Data
 
-	// #region    --- Key Els
-	#checkEl!: DCheckElement;
-	#titleEl!: HTMLElement;
-	#infoEl!: HTMLElement;
-	// #endregion --- Key Els
+				// #region    --- Key Els
+				#checkEl!: DCheckElement;
+				#titleEl!: HTMLElement;
+				#infoEl!: HTMLElement;
+				// #endregion --- Key Els
 
-	init() {
+				init() {
 
-		super.init();
-		let content = document.importNode(TASK_ROW_HTML, true);
-		// Note: dom-native scanChild is a strict one fast pass child scanner. 
-		//       Use all/first if needs to be more flexible. 
-		[this.#titleEl, this.#infoEl, this.#checkEl] = scanChild(content, 'span', 'span', 'd-check');
+					super.init();
+				let content = document.importNode(TASK_ROW_HTML, true);
+				// Note: dom-native scanChild is a strict one fast pass child scanner. 
+				//       Use all/first if needs to be more flexible. 
+				[this.#titleEl, this.#infoEl, this.#checkEl] = scanChild(content, 'span', 'span', 'd-check');
 
-		// FIXME: Check that order does not matter here.
-		this.replaceChildren(content);
-		this.update(this.#task);
+				// FIXME: Check that order does not matter here.
+				this.replaceChildren(content);
+				this.update(this.#task);
 	}
 
-	update(newTask: Task, oldTask?: Task) {
+				update(newTask: Task, oldTask?: Task) {
 
 		if (oldTask) {
-			this.classList.remove(`${classable(oldTask.id)}`)
-		}
+					this.classList.remove(`${classable(oldTask.id)}`)
+				}
 
 		// if ready to be injected, we do the job
-		if (newTask && this.#titleEl != null) {
+				if (newTask && this.#titleEl != null) {
 
-			this.classList.add(`${classable(newTask.id)}`);
-			this.#checkEl.checked = newTask.done;
+					this.classList.add(`${classable(newTask.id)}`);
+				this.#checkEl.checked = newTask.done;
 
-			this.#titleEl.textContent = newTask.title;
-			let info = newTask.ctime;
-			info = info.substring(info.length - 5);
-			this.#infoEl.textContent = `(ctime: ${info})`;
+				this.#titleEl.textContent = newTask.title;
+				let info = newTask.ctime
+				let ctimeNum = parseInt(info);
+				console.log(`🚀 ~ file: tasks-dt.ts ~ line 188 ~ TaskRow ~ update ~ ctimeNum`, ctimeNum)
+				const date = new Date(ctimeNum)
+				// convert date to milliseconds
+				console.log(`🚀 ~ file: tasks-dt.ts ~ line 188 ~ TaskRow ~ update ~ date`, date)				
+				const date_ms = date.getTime();
+				console.log(`🚀 ~ file: tasks-dt.ts ~ line 190 ~ TaskRow ~ update ~ date_ms`, date_ms)
+				
+
+
+				// parse the date from milliseconds
+				function parseDateFromMilliseconds() {
+					console.log(`🚀 ~ file: tasks-dt.ts ~ line 193 ~ TaskRow ~ parseDateFromMilliseconds ~ date`, date)
+					const year = date.getFullYear();
+					const month = date.getMonth() + 1;
+					const day = date.getDate();
+					const hour = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
+					const minute = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+					const second = date.getSeconds();
+					return year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+				}
+				let parsedDate = parseDateFromMilliseconds();
+				console.log(`🚀 ~ file: tasks-dt.ts ~ line 202 ~ TaskRow ~ update ~ parsedDate`, parsedDate)
+				this.#infoEl.textContent = parsedDate;
+
+				info = `${parsedDate}`;
+
+
+				this.#infoEl.textContent = parsedDate;
+			// console.log(`🚀 ~ file: tasks-dt.ts ~ line 189 ~ TaskRow ~ update ~ info`, info, typeof info)
+			// let formatedDate = date.toLocaleDateString(info);
+			// console.log(`🚀 ~ file: tasks-dt.ts ~ line 190 ~ TaskRow ~ update ~ formatedDate`, formatedDate)
+			// let formatedTime = date.toLocaleTimeString(info);
+			// console.log(`🚀 ~ file: tasks-dt.ts ~ line 192 ~ TaskRow ~ update ~ formatedTime`, formatedTime)
+			// this.#infoEl.textContent = `(ctime: ${info})`;
 		}
 
 	}
 }
-declare global {
-	interface HTMLElementTagNameMap {
-		'task-row': TaskRow;
+				declare global {
+					interface HTMLElementTagNameMap {
+					'task-row': TaskRow;
 	}
 }
 // #endregion --- task-row

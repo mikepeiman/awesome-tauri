@@ -49,7 +49,7 @@ impl Store {
 		let sql = "CREATE type::table($tb) CONTENT $data RETURN id";
 
 		let mut data: Object = W(data.into()).try_into()?;
-		let now = Datetime::default().timestamp_nanos();
+		let now = Datetime::default().timestamp_millis();
 		data.insert("ctime".into(), now.into());
 
 		let vars = map![
